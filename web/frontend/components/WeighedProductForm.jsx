@@ -15,6 +15,7 @@ import {
   Layout,
   EmptyState,
 } from "@shopify/polaris";
+import {CirclePlusMinor} from '@shopify/polaris-icons';
 import {
   ContextualSaveBar,
   ResourcePicker,
@@ -34,28 +35,60 @@ export default function WeighedProductForm() {
   const [weight, setWeight] = useState('')
   const [pricePerUnit, setPricePerUnit] = useState(4)
   const [totalPrice, setTotalPrice] = useState('')
+  const [productCart, setProductCart] = useState([
+    {name:"", image:"", weight:"", total:""}
+    // {name:"", image:"", weight:"", total:""}
+  ])
   
+  useEffect(()=>{
 
-  const handleSubmit=event=>{
-    setWeight(event.target.value)
-    setTotalPrice(weight*pricePerUnit)
+
+  })
+  const handleSubmit=(e, index)=>{
+    const {name, value} = e.target;
+    const list = [...productCart]
+    list[index][name] = value
+    setProductCart(list)
+    setWeight(e.target.value)
+    setTotalPrice(parseInt(weight)*pricePerUnit)
   }
-  console.log(typeof pricePerUnit)
   console.log(typeof parseInt(weight))
+  console.log(typeof pricePerUnit)
+  console.log(typeof parseInt(totalPrice))
+
+  const handleAddItem=()=>{
+    setProductCart([...productCart,{name:"", image:"",price:"", weight:"", total:""}])
+  }
+  const handleRemoveItem=(index)=>{
+    const list = [...productCart]
+    list.splice(index,1);
+    setProductCart(list)
+  }
   
-  console.log(totalPrice)
   return (
-    <Box background="bg-app-selected" width="15rem">
-      <Form onSubmit={handleSubmit}>
-        <FormLayout>
-            <h1>{weighedproduct}</h1>
-            <img src={productImage} width="150rem"/>
-            <input type="number" placeholder='Weight in grams' value={parseInt(weight)} onChange={handleSubmit}/>
-            {/* <h1>Price Per Unit:<span>${pricePerUnit}</span></h1> */}
-            <h1>Total:<span>${totalPrice}</span></h1>
-            {/* <Button submit>Submit</Button> */}
-        </FormLayout>
-      </Form>
-    </Box>
+    <div>
+      {productCart.map((prod, index)=>(
+      <Box key={index} background="bg-app-selected" width="15rem">
+        <Form onSubmit={handleSubmit}>
+            <FormLayout>
+              <h1 name="name">{weighedproduct}</h1>
+              <img src={productImage} width="150rem" name="image"/>
+              <input type="number" placeholder='Weight in grams' name="weight" value={parseInt(weight)} onChange={(e)=>handleSubmit(e,index)}/>
+              <h1 name="price" value={prod.price}>Price Per Unit:<span>${pricePerUnit}</span></h1>
+              <h1 name="total" value={prod.total}>Total:<span>${totalPrice}</span></h1>
+            </FormLayout>
+          {productCart.length-1===index && productCart.length<4 && <Button className='' primary={true} onClick={handleAddItem}>Add New Item</Button>}
+          {productCart.length>1 && <Button className='remove-btn' onClick={()=>handleRemoveItem(index)}>Remove</Button>}
+        </Form>
+      </Box>
+      ))}
+      <div>
+        {productCart.map((prod,index)=>(
+          <ul key={index}>
+            {prod.name && <li>{prod.name}</li>}
+          </ul>
+        ))}
+      </div>
+    </div>
   )
 }
